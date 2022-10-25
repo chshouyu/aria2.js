@@ -1,20 +1,20 @@
-import JSONRPCClient from "./JSONRPCClient.js";
+import JSONRPCClient from './JSONRPCClient.js';
 
 function prefix(str) {
-  if (!str.startsWith("system.") && !str.startsWith("aria2.")) {
-    str = "aria2." + str;
+  if (!str.startsWith('system.') && !str.startsWith('aria2.')) {
+    str = 'aria2.' + str;
   }
   return str;
 }
 
 function unprefix(str) {
-  const suffix = str.split("aria2.")[1];
+  const suffix = str.split('aria2.')[1];
   return suffix || str;
 }
 
 class Aria2 extends JSONRPCClient {
   addSecret(parameters) {
-    let params = this.secret ? ["token:" + this.secret] : [];
+    let params = this.secret ? ['token:' + this.secret] : [];
     if (Array.isArray(parameters)) {
       params = params.concat(parameters);
     }
@@ -38,25 +38,22 @@ class Aria2 extends JSONRPCClient {
         return { methodName: prefix(method), params: this.addSecret(params) };
       }),
     ];
-    return super.call("system.multicall", multi);
+    return super.call('system.multicall', multi);
   }
 
   async batch(calls) {
     return super.batch(
-      calls.map(([method, ...params]) => [
-        prefix(method),
-        this.addSecret(params),
-      ])
+      calls.map(([method, ...params]) => [prefix(method), this.addSecret(params)])
     );
   }
 
   async listNotifications() {
-    const events = await this.call("system.listNotifications");
+    const events = await this.call('system.listNotifications');
     return events.map((event) => unprefix(event));
   }
 
   async listMethods() {
-    const methods = await this.call("system.listMethods");
+    const methods = await this.call('system.listMethods');
     return methods.map((method) => unprefix(method));
   }
 }
@@ -65,10 +62,10 @@ Object.assign(Aria2, { prefix, unprefix });
 
 Aria2.defaultOptions = Object.assign({}, JSONRPCClient.defaultOptions, {
   secure: false,
-  host: "localhost",
+  host: 'localhost',
   port: 6800,
-  secret: "",
-  path: "/jsonrpc",
+  secret: '',
+  path: '/jsonrpc',
 });
 
 export default Aria2;
